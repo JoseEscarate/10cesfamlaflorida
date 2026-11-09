@@ -673,7 +673,8 @@
         color: #b42338;
       }
 
-      .field input {
+      .field input,
+      .field select {
         width: 100%;
         min-height: 49px;
         padding: 11px 13px;
@@ -688,7 +689,8 @@
         color: #94a1ae;
       }
 
-      .field input:focus {
+      .field input:focus,
+      .field select:focus {
         border-color: var(--green);
         outline: 2px solid rgba(34, 155, 75, 0.15);
       }
@@ -1014,7 +1016,8 @@
           gap: 14px 10px;
         }
 
-        .field input {
+        .field input,
+        .field select {
           min-height: 47px;
           padding-inline: 10px;
           font-size: 14px;
@@ -1105,7 +1108,7 @@
             <h1 id="hero-title">EL 10° PARA <span class="headline-green">LA FLORIDA</span></h1>
             <p class="hero-slogan">Por la salud de las y los floridanos. ¡Vamos por un décimo CESFAM!</p>
             <p>
-              Más de 345 mil personas dependen de solo nueve centros de atención primaria. La red
+              Más de 345 mil personas dependen de solo nueve centros de salud. La red
               municipal está sobrepasada: hacen falta espacio, equipos y un nuevo CESFAM.
             </p>
             <div class="hero-actions">
@@ -1146,9 +1149,9 @@
         <div class="wrap">
           <div class="section-heading">
             <p class="eyebrow">La red está al límite</p>
-            <h2 id="urgencia-title">Nueve centros no alcanzan para una comuna que creció.</h2>
+            <h2 id="urgencia-title">Nueve centros de salud no alcanzan para una comuna que creció.</h2>
             <p>
-              La sobrecarga se nota en la falta de boxes y en equipos de salud exigidos. Un nuevo
+              La sobrecarga se nota en la falta de espacios de atención y en equipos de salud exigidos. Un nuevo
               CESFAM es una respuesta concreta a una necesidad estructural.
             </p>
           </div>
@@ -1191,7 +1194,7 @@
                 </svg>
               </span>
               <strong class="stat-number">Sin espacio</strong>
-              <p>boxes insuficientes y personal trabajando bajo presión asistencial.</p>
+              <p>espacios de atención insuficientes y personal trabajando bajo presión asistencial.</p>
             </article>
           </div>
 
@@ -1212,10 +1215,6 @@
               </div>
             </div>
           </div>
-          <p class="source-note">
-            Inscripciones y capacidad referencial: antecedentes de la campaña y explicación comunitaria.
-            El promedio de 40.000 es aproximado.
-          </p>
         </div>
       </section>
 
@@ -1225,7 +1224,7 @@
             <p class="eyebrow">La respuesta que necesitamos</p>
             <h2 id="respuesta-title">Un décimo CESFAM. Más capacidad para cuidar.</h2>
             <p>
-              No es un lujo. Es infraestructura pública para acercar la atención, sumar boxes y
+              No es un lujo. Es infraestructura pública para acercar la atención, sumar espacios y
               aliviar la presión de los centros que hoy atienden por sobre su capacidad.
             </p>
           </div>
@@ -1305,14 +1304,18 @@
                 </div>
                 <div class="field">
                   <label for="cesfam">CESFAM donde estás inscrito/a <span class="required">*</span></label>
-                  <input
-                    id="cesfam"
-                    name="cesfam"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Ej. Bellavista"
-                    required
-                  />
+                  <select id="cesfam" name="cesfam" required>
+                    <option value="" disabled selected>Selecciona tu centro de salud</option>
+                    <option value="CESFAM Los Quillayes">CESFAM Los Quillayes</option>
+                    <option value="CESFAM La Florida">CESFAM La Florida</option>
+                    <option value="CESFAM Maffioletti">CESFAM Maffioletti</option>
+                    <option value="CESFAM Trinidad">CESFAM Trinidad</option>
+                    <option value="CESFAM Bellavista">CESFAM Bellavista</option>
+                    <option value="CESFAM Santa Amalia">CESFAM Santa Amalia</option>
+                    <option value="CESFAM Villa O'Higgins">CESFAM Villa O'Higgins</option>
+                    <option value="CESFAM José Alvo">CESFAM José Alvo</option>
+                    <option value="CESFAM Los Castaños">CESFAM Los Castaños</option>
+                  </select>
                 </div>
                 <div class="field">
                   <label for="phone">Teléfono <span class="required">*</span></label>
