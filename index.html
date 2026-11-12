@@ -319,36 +319,57 @@
         right: 0;
         bottom: 0;
         display: grid;
-        width: 225px;
-        padding: 15px 20px 17px;
-        border-bottom: 5px solid var(--green-bright);
-        background: var(--blue);
-        color: var(--white);
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        align-items: center;
+        column-gap: 12px;
+        width: max-content;
+        max-width: 100%;
+        padding: 10px 20px 10px 14px;
+        border: 1px solid rgba(16, 60, 107, 0.08);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        color: var(--blue);
+        box-shadow: 0 12px 32px rgba(16, 60, 107, 0.16);
+        backdrop-filter: blur(8px);
       }
 
       .graphic-overline,
       .graphic-subline {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.09em;
+        line-height: 1.25;
+      }
+
+      .graphic-overline {
+        grid-column: 2;
+        grid-row: 1;
       }
 
       .graphic-number {
+        grid-column: 1;
+        grid-row: 1 / span 2;
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 80px;
+        gap: 4px;
+        font-size: 54px;
         font-weight: 800;
         letter-spacing: -0.08em;
-        line-height: 0.95;
+        line-height: 1;
       }
 
       .graphic-number span {
         align-self: flex-start;
-        margin-top: 7px;
+        margin-top: 2px;
         color: var(--green-bright);
-        font-size: 32px;
+        font-size: 22px;
         letter-spacing: 0;
+      }
+
+      .graphic-subline {
+        grid-column: 2;
+        grid-row: 2;
       }
 
       .hero-proof-photo {
@@ -924,12 +945,21 @@
         }
 
         .campaign-graphic {
-          width: 190px;
-          padding: 12px 16px 14px;
+          column-gap: 9px;
+          padding: 8px 14px 8px 12px;
         }
 
         .graphic-number {
-          font-size: 68px;
+          font-size: 46px;
+        }
+
+        .graphic-number span {
+          font-size: 19px;
+        }
+
+        .graphic-overline,
+        .graphic-subline {
+          font-size: 8px;
         }
 
         .section {
