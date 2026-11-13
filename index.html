@@ -759,6 +759,41 @@
         display: block;
       }
 
+      .form-notice-dialog {
+        width: min(440px, calc(100% - 32px));
+        padding: 28px;
+        border: 1px solid #d5e0e9;
+        border-radius: 8px;
+        color: var(--navy);
+        box-shadow: 0 18px 55px rgba(16, 60, 107, 0.24);
+      }
+
+      .form-notice-dialog::backdrop {
+        background: rgba(15, 35, 57, 0.55);
+      }
+
+      .form-notice-dialog h4 {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      .form-notice-dialog p {
+        margin: 0 0 20px;
+        line-height: 1.6;
+      }
+
+      .form-notice-dialog button {
+        min-height: 42px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 3px;
+        background: var(--green);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       .form-response-frame {
         position: absolute;
         width: 1px;
@@ -1376,6 +1411,11 @@
               <button class="button form-submit" type="submit">Sumarme a la campaña <span aria-hidden="true">→</span></button>
               <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
             </form>
+            <dialog class="form-notice-dialog" id="form-notice" aria-labelledby="form-notice-title" aria-describedby="form-notice-message">
+              <h4 id="form-notice-title"></h4>
+              <p id="form-notice-message"></p>
+              <button type="button" id="form-notice-close">Entendido</button>
+            </dialog>
             <iframe
               class="form-response-frame"
               name="signature-response"
@@ -1418,23 +1458,88 @@
       const formStatus = document.querySelector("#form-status");
       const signatureFrame = document.querySelector('iframe[name="signature-response"]');
       const submitButton = signatureForm.querySelector('button[type="submit"]');
+      const formNotice = document.querySelector("#form-notice");
+      const formNoticeTitle = document.querySelector("#form-notice-title");
+      const formNoticeMessage = document.querySelector("#form-notice-message");
+      const formNoticeClose = document.querySelector("#form-notice-close");
+      const submissionStorageKey = "cesfam-signature-submission";
+      let submissionLocked = false;
       let awaitingResponse = false;
       let responseTimer;
 
       whatsappLink.href = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${campaignUrl}`)}`;
       facebookLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(campaignUrl)}`;
 
+      function showFormNotice(title, message) {
+        formNoticeTitle.textContent = title;
+        formNoticeMessage.textContent = message;
+        formNotice.showModal();
+      }
+
+      function disableSignatureForm() {
+        signatureForm.querySelectorAll("input, select, button").forEach((control) => {
+          control.disabled = true;
+        });
+      }
+
+      formNoticeClose.addEventListener("click", () => formNotice.close());
+
+      try {
+        if (sessionStorage.getItem(submissionStorageKey)) {
+          submissionLocked = true;
+          disableSignatureForm();
+          formStatus.classList.add("is-visible");
+          formStatus.textContent =
+            "Ya se inició un envío desde esta pestaña. Para evitar duplicados, no vuelvas a enviar el formulario; consulta con la campaña si necesitas confirmar el registro.";
+          showFormNotice(
+            "Envío ya iniciado",
+            "Ya se inició un envío desde esta pestaña. No lo vuelvas a enviar para evitar duplicados. Esta página no puede confirmar automáticamente si quedó registrado; si necesitas verificarlo, contacta con la campaña."
+          );
+        }
+      } catch (error) {
+        console.error("No se pudo comprobar el estado del envío en esta pestaña.", error);
+      }
+
       signatureFrame.addEventListener("load", () => {
         if (!awaitingResponse) return;
 
         awaitingResponse = false;
         clearTimeout(responseTimer);
-        submitButton.disabled = false;
-        formStatus.textContent =
-          "El envío terminó, pero esta página no puede confirmar si tu adhesión quedó registrada. Si no tienes confirmación, verifica con la campaña antes de volver a enviar.";
+        disableSignatureForm();
+        try {
+          sessionStorage.setItem(submissionStorageKey, "submitted");
+        } catch (error) {
+          console.error("No se pudo guardar el estado del envío en esta pestaña.", error);
+        }
+        formStatus.textContent = "Datos enviados. No vuelvas a enviar el formulario desde esta pestaña.";
+        showFormNotice(
+          "Datos enviados",
+          "El envío terminó. No vuelvas a enviar el formulario desde esta pestaña para evitar duplicados. Esta página no puede confirmar automáticamente si tu adhesión quedó registrada; si necesitas verificarlo, contacta con la campaña."
+        );
       });
 
-      signatureForm.addEventListener("submit", () => {
+      signatureForm.addEventListener("submit", (event) => {
+        if (submissionLocked) {
+          event.preventDefault();
+          showFormNotice(
+            "Envío ya iniciado",
+            "Ya se inició un envío desde esta pestaña. No lo vuelvas a enviar para evitar duplicados. Si necesitas verificar el registro, contacta con la campaña."
+          );
+          return;
+        }
+
+        try {
+          sessionStorage.setItem(submissionStorageKey, "pending");
+        } catch (error) {
+          event.preventDefault();
+          console.error("No se pudo bloquear el reenvío en esta pestaña.", error);
+          formStatus.classList.add("is-visible");
+          formStatus.textContent =
+            "El navegador no permite bloquear reenvíos en esta pestaña, así que no enviamos tus datos. Habilita el almacenamiento de sesión e inténtalo nuevamente.";
+          return;
+        }
+
+        submissionLocked = true;
         formStatus.classList.add("is-visible");
         formStatus.textContent = "Enviando tus datos al registro de la campaña…";
         submitButton.disabled = true;
@@ -1443,9 +1548,13 @@
         clearTimeout(responseTimer);
         responseTimer = setTimeout(() => {
           awaitingResponse = false;
-          submitButton.disabled = false;
+          disableSignatureForm();
           formStatus.textContent =
-            "No pudimos confirmar la respuesta. El envío podría haberse recibido; verifica con la campaña antes de volver a intentarlo para evitar un registro duplicado.";
+            "No pudimos confirmar la respuesta. El envío podría haberse recibido. No lo vuelvas a enviar desde esta pestaña; consulta con la campaña para verificarlo.";
+          showFormNotice(
+            "No se pudo confirmar el envío",
+            "El envío podría haberse recibido, aunque no llegó una confirmación a esta página. No lo vuelvas a enviar desde esta pestaña para evitar duplicados; consulta con la campaña para verificarlo."
+          );
         }, 30000);
       });
     </script>
